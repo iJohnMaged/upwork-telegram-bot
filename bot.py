@@ -44,7 +44,7 @@ def start(update: telegram.Update, context: CallbackContext):
 def add_rss(update: telegram.Update, context: CallbackContext):
     try:
         rss_url = context.args[0]
-        rss_name = context.args[1]
+        rss_name = ' '.join(context.args[1:])
         rss_feed = RSSFeed(rss_name, rss_url)
         users_db.add_user_rss(update.message.chat_id, rss_feed)
         context.bot.send_message(
