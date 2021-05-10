@@ -32,7 +32,7 @@ def look_for_jobs_cb(context: CallbackContext):
         posts: List[JobPost] = RSSParser(rss["url"], user_obj).parse_rss()
         posts = posts[::-1]
         for post in posts:
-            message = f"[{rss.name}]\n\n{str(post)}"
+            message = f"[{rss['name']}]\n\n{str(post)}"
             context.bot.send_message(chat_id=chat_id, text=message)
 
 
