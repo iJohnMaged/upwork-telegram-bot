@@ -182,6 +182,8 @@ dispatcher.add_handler(unknown_command_handler)
 if __name__ == '__main__':
     # Init jobs
     for user in users_db.get_all_users():
+        if user["id"] == 1:
+            continue
         job_queue.run_repeating(look_for_jobs_cb, interval=timedelta(
             minutes=15), first=round_time(), context=user["id"])
 
