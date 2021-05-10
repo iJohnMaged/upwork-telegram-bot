@@ -37,6 +37,9 @@ for *exclude_countries* and *keywords* input is comma separated for multiple inp
 */filters*: Displays your current filter settings
 
 Notifications are sent out every 10 minutes!
+New features like removing RSS feed/settings will be out soon!
+
+*PS* Buy me coffee at: https://www.buymeacoffee.com/iJohnMaged :)
 """
 
 
