@@ -45,5 +45,7 @@ New features like removing RSS feed/settings will be out soon!
 """
 
 
-def round_time(dt=datetime.now(), delta=timedelta(minutes=REPEAT_PERIOD)):
+def round_time(dt=None, delta=timedelta(minutes=REPEAT_PERIOD)):
+    if dt is None:
+        dt = datetime.now()
     return dt + (datetime.min - dt) % delta
