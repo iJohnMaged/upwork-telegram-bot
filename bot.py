@@ -51,7 +51,7 @@ def add_rss(update: telegram.Update, context: CallbackContext):
         # context.job_queue.run_repeating(
         #    look_for_jobs_cb, interval=timedelta(minutes=15), first=5, context=update.message.chat_id)
         context.job_queue.run_repeating(
-            look_for_jobs_cb, interval=timedelta(minutes=15), first=round_time(), context=update.message.chat_id)
+            look_for_jobs_cb, interval=timedelta(minutes=REPEAT_PERIOD), first=round_time(), context=update.message.chat_id)
 
     except IndexError:
         context.bot.send_message(chat_id=update.effective_chat.id,
@@ -184,7 +184,7 @@ if __name__ == '__main__':
         if user["id"] == 1:
             continue
         job_queue.run_repeating(look_for_jobs_cb, interval=timedelta(
-            minutes=15), first=round_time(), context=user["id"])
+            minutes=REPEAT_PERIOD), first=round_time(), context=user["id"])
 
     updater.start_polling(poll_interval=0.2, timeout=10)
     updater.idle()
