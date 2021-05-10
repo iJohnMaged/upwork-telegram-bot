@@ -15,7 +15,9 @@ ITERABLE_FILTERS = [
     "keywords"
 ]
 
-HELP_TEXT = """
+REPEAT_PERIOD = 5  # minutes
+
+HELP_TEXT = f"""
 Hey! Get your Upwork feed delivered and customized to your needs while focusing on work/learning!
 
 Commands available:
@@ -36,12 +38,12 @@ for *exclude_countries* and *keywords* input is comma separated for multiple inp
 */add_filter* <filter> <value>: sets filter's value
 */filters*: Displays your current filter settings
 
-Notifications are sent out every 10 minutes!
+Notifications are sent out every {REPEAT_PERIOD} minutes!
 New features like removing RSS feed/settings will be out soon!
 
 *PS* Buy me coffee at: https://www.buymeacoffee.com/iJohnMaged :)
 """
 
 
-def round_time(dt=datetime.now(), delta=timedelta(minutes=15)):
+def round_time(dt=datetime.now(), delta=timedelta(minutes=REPEAT_PERIOD)):
     return dt + (datetime.min - dt) % delta

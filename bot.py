@@ -3,7 +3,7 @@ import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from decouple import config
 
-from helper import round_time, ALLOWED_SETTINGS, ALLOWED_FILTERS, ITERABLE_FILTERS, HELP_TEXT
+from helper import round_time, ALLOWED_SETTINGS, ALLOWED_FILTERS, ITERABLE_FILTERS, HELP_TEXT, REPEAT_PERIOD
 from datetime import timedelta
 from storage import UsersDB, RSSFeed
 from rss_parser import JobPost, RSSParser
@@ -11,7 +11,6 @@ from rss_parser import JobPost, RSSParser
 import logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
 
 BOT_TOKEN = config("TOKEN")
 
