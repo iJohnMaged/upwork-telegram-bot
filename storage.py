@@ -74,6 +74,12 @@ class UsersDB:
         user["rss"].append(rss.to_dict())
         self._update_user(user_id, user)
 
+    def delete_user_rss(self, user_id, rss_name):
+        user = self.get_user(user_id)
+        user["rss"] = [rss for rss in user["rss"]
+                       if rss.get("name") != rss_name]
+        self._update_user(user_id, user)
+
     def get_user_settings(self, user_id):
         user = self.get_user(user_id)
         return user["settings"]
@@ -99,7 +105,6 @@ class UsersDB:
 class JobPostDB:
     def __init__(self) -> None:
         self.db_client = pymongo.MongoClient(config("DB_CONNECTION"))
-        self.db = self.db_client[config("DB_NAME")]
         self.jobs = self.db["job_posts"]
         if "job_posts" not in self.db.list_collection_names():
             self._init_db()

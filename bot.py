@@ -39,6 +39,8 @@ def start(update: telegram.Update, context: CallbackContext):
     context.bot.send_message(
         chat_id=update.effective_chat.id, text="Hi! I'm upwork bot, ready to help you find jobs without wasting time!")
 
+# RSS CALL BACKS
+
 
 def add_rss(update: telegram.Update, context: CallbackContext):
     try:
@@ -68,6 +70,19 @@ def list_rss(update: telegram.Update, context: CallbackContext):
         message = f"[{rss['name']}]: {rss['url']}"
         context.bot.send_message(
             chat_id=update.effective_chat.id, text=message)
+
+
+def delete_rss(update: telegram.Update, context: CallbackContext):
+    try:
+        rss_name = context.args[0]
+    except IndexError:
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text="Invalid input, please use /delete_rss <rss_name>")
+        return
+    user_id = update.message.chat_id
+    users_db.delete_user_rss(user_id, rss_name)
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text=f"Deleted {rss_name} RSS")
 
 
 def set_settings_cb(update: telegram.Update, context: CallbackContext):
@@ -146,33 +161,20 @@ def unknown_command(update: telegram.Update, context: CallbackContext):
                              text="Sorry, I didn't understand that command!")
 
 
-# Handlers
-start_handler = CommandHandler('start', start)
-dispatcher.add_handler(start_handler)
+commands = {
+    "start": start,
+    "add_rss": add_rss,
+    "delete_rss": delete_rss,
+    "list_rss": list_rss,
+    "set": set_settings_cb,
+    "settings": list_settings_cb,
+    "add_filter": add_filter_cb,
+    "filters": list_filters_cb,
+    "help": help_me_cb
+}
 
-# RSS handlers
-add_rss_handler = CommandHandler('add_rss', add_rss)
-list_rss_handler = CommandHandler('list_rss', list_rss)
-
-dispatcher.add_handler(add_rss_handler)
-dispatcher.add_handler(list_rss_handler)
-
-# User settings and filters
-settings_handler = CommandHandler('set', set_settings_cb)
-list_settings_handler = CommandHandler('settings', list_settings_cb)
-
-add_filter_handler = CommandHandler('add_filter', add_filter_cb)
-list_filter_handler = CommandHandler('filters', list_filters_cb)
-
-dispatcher.add_handler(settings_handler)
-dispatcher.add_handler(list_settings_handler)
-dispatcher.add_handler(add_filter_handler)
-dispatcher.add_handler(list_filter_handler)
-
-# HEEEEEEEEEEEEEELP
-help_handler = CommandHandler('help', help_me_cb)
-dispatcher.add_handler(help_handler)
-
+for k, v in commands.items():
+    dispatcher.add_handler(CommandHandler(k, v))
 
 unknown_command_handler = MessageHandler(Filters.command, unknown_command)
 dispatcher.add_handler(unknown_command_handler)
