@@ -29,11 +29,13 @@ def look_for_jobs_cb(context: CallbackContext):
     chat_id = context.job.context
     user_obj = users_db.get_user(chat_id)
     rss_list: List[RSSFeed] = users_db.get_user_rss(chat_id)
+    show_summary = user_obj["settings"].get("show_summary", "no")
+    show_summary = False if show_summary == "no" else True
     for rss in rss_list:
         posts: List[JobPost] = RSSParser(rss["url"], user_obj).parse_rss()
         posts = posts[::-1]
         for post in posts:
-            message = f"[{rss['name']}]\n\n{str(post)}"
+            message = f"[{rss['name']}]\n\n{post.to_str(show_summary)}"
             context.bot.send_message(chat_id=chat_id, text=message)
 
 
@@ -129,15 +131,21 @@ def set_settings_cb(update: telegram.Update, context: CallbackContext):
     try:
         keyword = context.args[0].lower()
         value = context.args[1]
-        if keyword not in ALLOWED_SETTINGS:
+        if keyword not in ALLOWED_SETTINGS.keys():
             context.bot.send_message(chat_id=update.effective_chat.id,
-                                     text=f"Invalid settings keyword, allowed keywords are: [{', '.join(ALLOWED_SETTINGS)}]")
+                                     text=f"Invalid settings keyword, allowed keywords are: [{', '.join(ALLOWED_SETTINGS.keys())}]")
             return
     except IndexError:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text="Invalid input, please use /set <key_word> <value>")
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=f"Allowed keywords are: [{', '.join(ALLOWED_SETTINGS)}]")
+                                 text=f"Allowed keywords are: [{', '.join(ALLOWED_SETTINGS.keys())}]")
+        return
+    valid_values = ALLOWED_SETTINGS[keyword]["values"]
+    value = ALLOWED_SETTINGS[keyword]["type"](value)
+    if value not in valid_values:
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=f"Invalid value for {keyword}, allowed values are: {', '.join(valid_values[:25])}..")
         return
     users_db.set_user_settings(update.message.chat_id, keyword, value)
     context.bot.send_message(chat_id=update.effective_chat.id,

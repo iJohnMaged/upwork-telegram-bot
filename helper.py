@@ -1,8 +1,16 @@
+import pytz
 from datetime import datetime, timedelta
 
-ALLOWED_SETTINGS = [
-    "timezone"
-]
+ALLOWED_SETTINGS = {
+    "timezone": {
+        "values": [tz.lower() for tz in pytz.all_timezones],
+        "type": str
+    },
+    "show_summary": {
+        "values": ["yes", "no"],
+        "type": str
+    }
+}
 
 ALLOWED_FILTERS = [
     "exclude_countries",
