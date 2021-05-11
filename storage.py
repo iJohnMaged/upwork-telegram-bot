@@ -21,7 +21,6 @@ class RSSFeed:
 class UsersDB:
     def __init__(self) -> None:
         self.db_client = pymongo.MongoClient(config("DB_CONNECTION"))
-        self.db = self.db_client[config("DB_NAME")]
         self.users = self.db["users"]
         if "users" not in self.db.list_collection_names():
             self._init_db()
