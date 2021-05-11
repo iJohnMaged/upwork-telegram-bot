@@ -4,11 +4,13 @@ from datetime import datetime, timedelta
 ALLOWED_SETTINGS = {
     "timezone": {
         "values": [tz.lower() for tz in pytz.all_timezones],
-        "type": str
+        "type": str,
+        "error": "Allowed timezone values are listed here: https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568"
     },
     "show_summary": {
         "values": ["yes", "no"],
-        "type": str
+        "type": str,
+        "error": "Allowed show_summary values are yes/no."
     }
 }
 

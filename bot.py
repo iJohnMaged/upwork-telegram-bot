@@ -145,7 +145,7 @@ def set_settings_cb(update: telegram.Update, context: CallbackContext):
     value = ALLOWED_SETTINGS[keyword]["type"](value)
     if value not in valid_values:
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=f"Invalid value for {keyword}, allowed values are: {', '.join(valid_values[:25])}..")
+                                 text=ALLOWED_SETTINGS[keyword]["error"])
         return
     users_db.set_user_settings(update.message.chat_id, keyword, value)
     context.bot.send_message(chat_id=update.effective_chat.id,
