@@ -52,9 +52,13 @@ class UsersDB:
                 "rss": [],
                 "settings": {
                     "timezone": "UTC",
-                    "show_summary": "no"
+                    "show_summary": "no",
                 },
-                "filters": {}
+                "filters": {
+                    "exclude_countries": [],
+                    "minimum_budget": 0,
+                    "keywords": []
+                }
             }
         )
         return self.users.find_one({
@@ -104,6 +108,13 @@ class UsersDB:
             user["filters"][key] = list(set(user["filters"][key]))
         else:
             user["filters"][key] = list(set(value))
+        self._update_user(user_id, user)
+        return user["filters"][key]
+
+    def clear_user_filter(self, user_id, key):
+        user = self.get_user(user_id)
+        if key in user["filters"]:
+            user["filters"].pop(key)
         self._update_user(user_id, user)
 
 

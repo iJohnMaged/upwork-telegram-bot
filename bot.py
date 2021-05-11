@@ -182,16 +182,34 @@ def add_filter_cb(update: telegram.Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=f"Allowed keywords are: [{', '.join(ALLOWED_FILTERS)}]")
         return
-    users_db.set_user_filter(update.message.chat_id, keyword, value)
+    val = users_db.set_user_filter(update.message.chat_id, keyword, value)
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=f"Successfully set filter {keyword} = {value}!")
+                             text=f"Successfully set filter {keyword} = {val}")
+
+
+def clear_filter_cb(update: telegram.Update, context: CallbackContext):
+    try:
+        keyword = context.args[0].lower()
+        if keyword not in ALLOWED_FILTERS:
+            context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text=f"Invalid filter keyword, allowed keywords are: [{', '.join(ALLOWED_FILTERS)}]")
+            return
+    except IndexError:
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text="Invalid input, please use /clear_filter <key_word>")
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=f"Allowed keywords are: [{', '.join(ALLOWED_FILTERS)}]")
+        return
+    users_db.clear_user_filter(update.message.chat_id, keyword)
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text=f"Successfully cleared filter {keyword}")
 
 
 def list_filters_cb(update: telegram.Update, context: CallbackContext):
     filters = users_db.get_user_filters(update.message.chat_id)
     if not filters:
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=f"No filters are set yet, please use /add_filter <key_word> <value>")
+                                 text=f"No filters are set yet, use /add_filter <key_word> <value>")
         return
     message = "[FILTERS]\n"
     message += "\n".join([f"{k} = {v}" for k, v in filters.items()])
@@ -242,6 +260,7 @@ commands = {
     "set": set_settings_cb,
     "settings": list_settings_cb,
     "add_filter": add_filter_cb,
+    "clear_filter": clear_filter_cb,
     "filters": list_filters_cb,
     "pause": pause_updates_cb,
     "resume": resume_updates_cb,
