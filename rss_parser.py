@@ -65,6 +65,10 @@ class RSSParser:
         except:
             return 'N/A'
 
+    def _clean_summary(self, summary):
+        pattern = re.compile(r'<.*?>')
+        return pattern.sub('', summary)
+
     def _parse_published(self, published_str):
         # Format Example: Sat, 24 Oct 2020 03:06:03 +0000
         user_timezone = self.user_settings.get("timezone", "UTC")
@@ -86,14 +90,15 @@ class RSSParser:
                     return False
         if job.budget != "N/A" and minimum_budget is not None:
             try:
-                minimum_budget = int(minimum_budget)
+                minimum_budget = float(minimum_budget)
                 if job.budget_numeric < minimum_budget:
                     return False
             except:
                 pass
         if keywords is not None:
             title = job.title.lower()
-            def cb(x): return x.lower() in title
+            summary = job.summary.lower()
+            def cb(x): return x.lower() in title or x.lower() in summary
             if not any([cb(keyword) for keyword in keywords]):
                 return False
 
@@ -114,10 +119,10 @@ class RSSParser:
                 budget,
                 published,
                 entry.get("title"),
-                entry.get("summary"),
+                self._clean_summary(entry.get("summary")),
                 budget_numeric,
                 country,
-                hourly=hourly
+                hourly
             )
             if self._filter_job(job_post):
                 job_posts.append(job_post)
