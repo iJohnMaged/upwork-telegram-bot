@@ -212,6 +212,20 @@ def list_jobs_cb(update: telegram.Update, context: CallbackContext):
                                  text=f"{job}, REMOVED: {job.removed}")
 
 
+def run_job_cb(update: telegram.Update, context: CallbackContext):
+    id = update.effective_chat.id
+    job_name = f"job_{id}"
+    jobs = job_queue.get_jobs_by_name(job_name)
+    try:
+        jobs[0].run(dispatcher)
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text="Update completed")
+    except Exception as e:
+        print(e)
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text="Something went wrong, make sure updates are not paused")
+
+
 commands = {
     "start": start,
     "add_rss": add_rss,
@@ -224,6 +238,7 @@ commands = {
     "pause": pause_updates_cb,
     "resume": resume_updates_cb,
     "jobs": list_jobs_cb,
+    "get_jobs": run_job_cb,
     "help": help_me_cb
 }
 
