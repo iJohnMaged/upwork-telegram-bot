@@ -21,9 +21,11 @@ class JobPost:
     summary: str
     budget_numeric: int
     country: str
+    hourly: bool
 
     def __str__(self) -> str:
-        return f"Title: {self.title}\nURL: {self.url}\nBudget: {self.budget}\nPublished: {str(self.published)}\nCountry: {self.country}"
+        job_type = "Hourly" if self.hourly else "Fixed-price"
+        return f"Title: {self.title}\nURL: {self.url}\nBudget: {self.budget}\Type: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
 
 
 class RSSParser:
@@ -37,18 +39,24 @@ class RSSParser:
         return feedparser.parse(self.url)
 
     def _parse_budget(self, summary):
-        try:
+        if "Hourly Range" in summary:
             budget = re.search(
+                r'<b>Hourly Range</b>:([^\n]+)', summary).group(1)
+            budget = budget.strip()
+            budget_no_dollar = budget.replace('$', '')
+            return budget, float(budget_no_dollar.split("-")[0]), True
+        try:
+            budget = '$' + re.search(
                 r'<b>Budget</b>: \$(\d[0-9,.]+)',
                 summary
-            ).group(1) + '$'
+            ).group(1)
             budget = re.sub('<[^<]+?>', '', budget)
         except AttributeError:
             budget = 'N/A'
         try:
-            return budget, int(budget[:-1])
+            return budget, int(budget[:-1]), False
         except:
-            return budget, None
+            return budget, None, (budget == "N/A")
 
     def _parse_country(self, summary):
         try:
@@ -97,7 +105,8 @@ class RSSParser:
         for entry in entries:
             if jobs_db.job_exits(entry['id'], self.user_id):
                 continue
-            budget, budget_numeric = self._parse_budget(entry['summary'])
+            budget, budget_numeric, hourly = self._parse_budget(
+                entry['summary'])
             country = self._parse_country(entry['summary'])
             published = self._parse_published(entry['published'])
             job_post = JobPost(
@@ -107,7 +116,8 @@ class RSSParser:
                 entry.get("title"),
                 entry.get("summary"),
                 budget_numeric,
-                country
+                country,
+                hourly=hourly
             )
             if self._filter_job(job_post):
                 job_posts.append(job_post)
