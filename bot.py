@@ -73,12 +73,11 @@ def list_rss(update: telegram.Update, context: CallbackContext):
 
 
 def delete_rss(update: telegram.Update, context: CallbackContext):
-    try:
-        rss_name = context.args[0]
-    except IndexError:
+    if len(context.args) == 0:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text="Invalid input, please use /delete_rss <rss_name>")
         return
+    rss_name = ' '.join(context.args)
     user_id = update.message.chat_id
     users_db.delete_user_rss(user_id, rss_name)
     context.bot.send_message(chat_id=update.effective_chat.id,
