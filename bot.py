@@ -13,6 +13,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 BOT_TOKEN = config("TOKEN")
+DEV_IDS = config("DEVS", cast=lambda v: [int(s.strip()) for s in v.split(",")])
 
 users_db = UsersDB()
 updater = Updater(token=BOT_TOKEN)
@@ -21,8 +22,9 @@ job_queue = updater.job_queue
 
 # Handlers methods
 
+# Callback method to run every x minutes looking for jobs
 
-# Callback method to run every 10 minutes looking for jobs
+
 def look_for_jobs_cb(context: CallbackContext):
     chat_id = context.job.context
     user_obj = users_db.get_user(chat_id)
@@ -35,6 +37,17 @@ def look_for_jobs_cb(context: CallbackContext):
             context.bot.send_message(chat_id=chat_id, text=message)
 
 
+def add_job_to_queue(user_id, interval, first):
+    job_name = f"job_{user_id}"
+    job_queue.run_repeating(
+        look_for_jobs_cb,
+        interval=interval,
+        first=first,
+        context=user_id,
+        name=job_name
+    )
+
+
 def start(update: telegram.Update, context: CallbackContext):
     context.bot.send_message(
         chat_id=update.effective_chat.id, text="Hi! I'm upwork bot, ready to help you find jobs without wasting time!")
@@ -44,16 +57,23 @@ def start(update: telegram.Update, context: CallbackContext):
 
 def add_rss(update: telegram.Update, context: CallbackContext):
     try:
+        user_id = update.message.chat_id
         rss_url = context.args[0]
         rss_name = ' '.join(context.args[1:])
         rss_feed = RSSFeed(rss_name, rss_url)
-        users_db.add_user_rss(update.message.chat_id, rss_feed)
+        users_db.add_user_rss(user_id, rss_feed)
         context.bot.send_message(
             chat_id=update.effective_chat.id, text="Added RSS feed!")
         # context.job_queue.run_repeating(
-        #    look_for_jobs_cb, interval=timedelta(minutes=15), first=5, context=update.message.chat_id)
-        context.job_queue.run_repeating(
-            look_for_jobs_cb, interval=timedelta(minutes=REPEAT_PERIOD), first=round_time(), context=update.message.chat_id)
+        #    look_for_jobs_cb, interval=timedelta(minutes=15), first=5, context=user_id)
+        job_name = f"job_{user_id}"
+        jobs = job_queue.get_jobs_by_name(job_name)
+        if len(jobs) == 0:
+            add_job_to_queue(
+                user_id,
+                timedelta(minutes=REPEAT_PERIOD),
+                round_time()
+            )
 
     except IndexError:
         context.bot.send_message(chat_id=update.effective_chat.id,
@@ -82,6 +102,27 @@ def delete_rss(update: telegram.Update, context: CallbackContext):
     users_db.delete_user_rss(user_id, rss_name)
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text=f"Deleted {rss_name} RSS")
+
+
+def pause_updates_cb(update: telegram.Update, context: CallbackContext):
+    user_id = update.message.chat_id
+    job_name = f"job_{user_id}"
+    jobs = job_queue.get_jobs_by_name(job_name)
+    for job in jobs:
+        job.schedule_removal()
+    context.bot.send_message(chat_id=update.message.chat_id,
+                             text="Paused updates, use /resume to start getting updates again")
+
+
+def resume_updates_cb(update: telegram.Update, context: CallbackContext):
+    user_id = update.message.chat_id
+    add_job_to_queue(
+        user_id,
+        timedelta(minutes=REPEAT_PERIOD),
+        round_time()
+    )
+    context.bot.send_message(chat_id=update.message.chat_id,
+                             text="Resumed updates, use /pause to pause updates when needed")
 
 
 def set_settings_cb(update: telegram.Update, context: CallbackContext):
@@ -160,6 +201,17 @@ def unknown_command(update: telegram.Update, context: CallbackContext):
                              text="Sorry, I didn't understand that command!")
 
 
+def list_jobs_cb(update: telegram.Update, context: CallbackContext):
+    id = update.effective_chat.id
+    if id not in DEV_IDS:
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text="NOT AUTHORIZED")
+        return
+    for job in job_queue.jobs():
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=f"{job}, REMOVED: {job.removed}")
+
+
 commands = {
     "start": start,
     "add_rss": add_rss,
@@ -169,6 +221,9 @@ commands = {
     "settings": list_settings_cb,
     "add_filter": add_filter_cb,
     "filters": list_filters_cb,
+    "pause": pause_updates_cb,
+    "resume": resume_updates_cb,
+    "jobs": list_jobs_cb,
     "help": help_me_cb
 }
 
@@ -184,8 +239,10 @@ if __name__ == '__main__':
     for user in users_db.get_all_users():
         if user["id"] == 1:
             continue
-        job_queue.run_repeating(look_for_jobs_cb, interval=timedelta(
-            minutes=REPEAT_PERIOD), first=round_time(), context=user["id"])
-
+        add_job_to_queue(
+            user["id"],
+            timedelta(minutes=REPEAT_PERIOD),
+            round_time()
+        )
     updater.start_polling(poll_interval=0.2, timeout=10)
     updater.idle()

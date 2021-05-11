@@ -21,6 +21,7 @@ class RSSFeed:
 class UsersDB:
     def __init__(self) -> None:
         self.db_client = pymongo.MongoClient(config("DB_CONNECTION"))
+        self.db = self.db_client[config("DB_NAME")]
         self.users = self.db["users"]
         if "users" not in self.db.list_collection_names():
             self._init_db()
@@ -96,15 +97,17 @@ class UsersDB:
     def set_user_filter(self, user_id, key, value):
         user = self.get_user(user_id)
         if key in ITERABLE_FILTERS and key in user["filters"]:
-            user["filter"].extend(value)
+            user["filters"][key].extend(value)
+            user["filters"][key] = list(set(user["filters"][key]))
         else:
-            user["filters"][key] = value
+            user["filters"][key] = list(set(value))
         self._update_user(user_id, user)
 
 
 class JobPostDB:
     def __init__(self) -> None:
         self.db_client = pymongo.MongoClient(config("DB_CONNECTION"))
+        self.db = self.db_client[config("DB_NAME")]
         self.jobs = self.db["job_posts"]
         if "job_posts" not in self.db.list_collection_names():
             self._init_db()
