@@ -1,6 +1,7 @@
 import feedparser
 import re
 import pytz
+import timeago
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -62,7 +63,9 @@ class RSSParser:
         published = datetime.strptime(
             published_str, '%a, %d %b %Y %H:%M:%S %z'
         ).replace(tzinfo=pytz.utc).astimezone(pytz.timezone(user_timezone))
-        return published.strftime("%b %d %Y %H:%M:%S")
+        timenow = datetime.utcnow().replace(
+            tzinfo=pytz.utc).astimezone(pytz.timezone(user_timezone))
+        return timeago.format(published, timenow)
 
     def _filter_job(self, job: JobPost):
         excluded_countries = self.user_filters.get("exclude_countries", None)
