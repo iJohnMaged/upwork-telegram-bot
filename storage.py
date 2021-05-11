@@ -50,7 +50,10 @@ class UsersDB:
             {
                 "id": user_id,
                 "rss": [],
-                "settings": {},
+                "settings": {
+                    "timezone": "UTC",
+                    "show_summary": "no"
+                },
                 "filters": {}
             }
         )
