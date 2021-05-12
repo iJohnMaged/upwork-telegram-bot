@@ -3,7 +3,7 @@ import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from decouple import config
 
-from helper import round_time, ALLOWED_SETTINGS, ALLOWED_FILTERS, ITERABLE_FILTERS, HELP_TEXT, REPEAT_PERIOD
+from helper import round_time, ALLOWED_SETTINGS, ALLOWED_FILTERS, ITERABLE_FILTERS, HELP_TEXT, REPEAT_PERIOD, INITIAL_TUTORIAL
 from datetime import timedelta
 from storage import UsersDB, RSSFeed
 from rss_parser import JobPost, RSSParser
@@ -52,7 +52,7 @@ def add_job_to_queue(user_id, interval, first):
 
 def start(update: telegram.Update, context: CallbackContext):
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text="Hi! I'm upwork bot, ready to help you find jobs without wasting time!")
+        chat_id=update.effective_chat.id, text=INITIAL_TUTORIAL, parse_mode='html')
 
 # RSS CALL BACKS
 
@@ -219,7 +219,7 @@ def list_filters_cb(update: telegram.Update, context: CallbackContext):
 
 def help_me_cb(update: telegram.Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=HELP_TEXT, parse_mode=telegram.ParseMode.MARKDOWN)
+                             text=HELP_TEXT, parse_mode=telegram.ParseMode.HTML)
 
 
 def unknown_command(update: telegram.Update, context: CallbackContext):
