@@ -26,9 +26,9 @@ class JobPost:
     def to_str(self, show_summary):
         job_type = "Hourly" if self.hourly else "Fixed-price"
         if show_summary:
-            return f"Title: {self.title}\nSummary: {self.summary}\nURL: {self.url}\nBudget: {self.budget}\Type: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
+            return f"Title: {self.title}\nSummary: {self.summary[:500]}\nURL: {self.url}\nBudget: {self.budget}\nType: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
         else:
-            return f"Title: {self.title}\nURL: {self.url}\nBudget: {self.budget}\Type: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
+            return f"Title: {self.title}\nURL: {self.url}\nBudget: {self.budget}\nType: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
 
 
 class RSSParser:
@@ -93,12 +93,12 @@ class RSSParser:
                     return False
         if job.budget != "N/A" and minimum_budget is not None:
             try:
-                minimum_budget = float(minimum_budget)
+                minimum_budget = int(minimum_budget)
                 if job.budget_numeric < minimum_budget:
                     return False
             except:
                 pass
-        if keywords is not None:
+        if keywords is not None and len(keywords) > 0:
             title = job.title.lower()
             summary = job.summary.lower()
             def cb(x): return x.lower() in title or x.lower() in summary

@@ -32,7 +32,7 @@ def look_for_jobs_cb(context: CallbackContext):
     show_summary = user_obj["settings"].get("show_summary", "no")
     show_summary = False if show_summary == "no" else True
     for rss in rss_list:
-        posts: List[JobPost] = RSSParser(rss["url"], user_obj).parse_rss()
+        posts = RSSParser(rss["url"], user_obj).parse_rss()
         posts = posts[::-1]
         for post in posts:
             message = f"[{rss['name']}]\n\n{post.to_str(show_summary)}"
@@ -46,7 +46,7 @@ def add_job_to_queue(user_id, interval, first):
         interval=interval,
         first=first,
         context=user_id,
-        name=job_name
+        name=job_name,
     )
 
 
@@ -74,7 +74,7 @@ def add_rss(update: telegram.Update, context: CallbackContext):
             add_job_to_queue(
                 user_id,
                 timedelta(minutes=REPEAT_PERIOD),
-                round_time()
+                timedelta(minutes=REPEAT_PERIOD)
             )
 
     except IndexError:
@@ -118,11 +118,14 @@ def pause_updates_cb(update: telegram.Update, context: CallbackContext):
 
 def resume_updates_cb(update: telegram.Update, context: CallbackContext):
     user_id = update.message.chat_id
-    add_job_to_queue(
-        user_id,
-        timedelta(minutes=REPEAT_PERIOD),
-        round_time()
-    )
+    job_name = f"job_{user_id}"
+    jobs = job_queue.get_jobs_by_name(job_name)
+    if len(jobs) == 0:
+        add_job_to_queue(
+            user_id,
+            timedelta(minutes=REPEAT_PERIOD),
+            timedelta(minutes=REPEAT_PERIOD)
+        )
     context.bot.send_message(chat_id=update.message.chat_id,
                              text="Resumed updates, use /pause to pause updates when needed")
 
@@ -235,7 +238,7 @@ def list_jobs_cb(update: telegram.Update, context: CallbackContext):
         return
     for job in job_queue.jobs():
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=f"{job}, REMOVED: {job.removed}")
+                                 text=f"{job}, REMOVED: {job.removed} NEXT: {job.next_t}")
 
 
 def run_job_cb(update: telegram.Update, context: CallbackContext):
@@ -252,6 +255,11 @@ def run_job_cb(update: telegram.Update, context: CallbackContext):
                                  text="Something went wrong, make sure updates are not paused")
 
 
+def id_cb(update: telegram.Update, context: CallbackContext):
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text=f"Your ID: {update.effective_chat.id}")
+
+
 commands = {
     "start": start,
     "add_rss": add_rss,
@@ -266,6 +274,7 @@ commands = {
     "resume": resume_updates_cb,
     "jobs": list_jobs_cb,
     "get_jobs": run_job_cb,
+    "id": id_cb,
     "help": help_me_cb
 }
 
@@ -281,10 +290,11 @@ if __name__ == '__main__':
     for user in users_db.get_all_users():
         if user["id"] == 1:
             continue
+        job_name = f"job_{user['id']}"
         add_job_to_queue(
             user["id"],
             timedelta(minutes=REPEAT_PERIOD),
-            round_time()
+            timedelta(minutes=REPEAT_PERIOD)
         )
     updater.start_polling(poll_interval=0.2, timeout=10)
     updater.idle()
