@@ -133,7 +133,7 @@ def resume_updates_cb(update: telegram.Update, context: CallbackContext):
 def set_settings_cb(update: telegram.Update, context: CallbackContext):
     try:
         keyword = context.args[0].lower()
-        value = context.args[1]
+        value = context.args[1].lower()
         if keyword not in ALLOWED_SETTINGS.keys():
             context.bot.send_message(chat_id=update.effective_chat.id,
                                      text=f"Invalid settings keyword, allowed keywords are: [{', '.join(ALLOWED_SETTINGS.keys())}]")
