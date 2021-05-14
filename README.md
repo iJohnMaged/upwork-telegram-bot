@@ -7,6 +7,10 @@ So I implemented this custom solution to deliver my RSS feed to me on telegram w
 
 The idea is adding your RSS feeds to the bot on telegram, and in one place you'll start getting your job feeds delivered to your phone/pc.
 
+## Bot output example ##
+
+![Bot Output](images/bot_example.jpg)
+
 ## How to get started using the bot on Telegram? ##
 
 Saerch for the bot on Telegram `@UpworkDeliveryBot` and follow the starting tutorial.
