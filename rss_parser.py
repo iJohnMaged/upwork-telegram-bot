@@ -84,26 +84,11 @@ class RSSParser:
 
     def _filter_job(self, job: JobPost):
         excluded_countries = self.user_filters.get("exclude_countries", None)
-        minimum_budget = self.user_filters.get("minimum_budget", None)
-        keywords = self.user_filters.get("keywords", None)
 
         if excluded_countries is not None:
             for country in excluded_countries:
                 if job.country.strip().lower() == country.lower():
                     return False
-        if job.budget != "N/A" and minimum_budget is not None:
-            try:
-                minimum_budget = int(minimum_budget)
-                if job.budget_numeric < minimum_budget:
-                    return False
-            except:
-                pass
-        if keywords is not None and len(keywords) > 0:
-            title = job.title.lower()
-            summary = job.summary.lower()
-            def cb(x): return x.lower() in title or x.lower() in summary
-            if not any([cb(keyword) for keyword in keywords]):
-                return False
 
         return True
 

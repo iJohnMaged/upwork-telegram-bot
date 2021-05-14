@@ -59,8 +59,6 @@ class UsersDB:
                 },
                 "filters": {
                     "exclude_countries": [],
-                    "minimum_budget": 0,
-                    "keywords": []
                 }
             }
         )

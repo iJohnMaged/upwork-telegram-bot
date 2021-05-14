@@ -16,13 +16,10 @@ ALLOWED_SETTINGS = {
 
 ALLOWED_FILTERS = [
     "exclude_countries",
-    "minimum_budget",
-    "keywords",
 ]
 
 ITERABLE_FILTERS = [
     "exclude_countries",
-    "keywords"
 ]
 
 REPEAT_PERIOD = 5  # minutes
@@ -43,8 +40,8 @@ Commands available:
 
 - Filters
 Available filters:
-exclude_countries, minimum_budget, keywords
-for <b>exclude_countries</b> and <b>keywords</b> input is comma separated for multiple inputs
+exclude_countries
+for <b>exclude_countries</b> input is comma separated for multiple inputs
 
 <b>/add_filter</b> &lt;filter&gt; &lt;value&gt;: sets filter's value
 <b>/clear_filter</b> &lt;filter&gt; clears filter's value
