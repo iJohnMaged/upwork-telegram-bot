@@ -250,7 +250,6 @@ def run_job_cb(update: telegram.Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text="Update completed")
     except Exception as e:
-        print(e)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text="Something went wrong, make sure updates are not paused")
 
