@@ -22,7 +22,7 @@ ITERABLE_FILTERS = [
     "exclude_countries",
 ]
 
-REPEAT_PERIOD = 5  # minutes
+REPEAT_PERIOD = 10  # minutes
 
 HELP_TEXT = f"""
 Hey! Get your Upwork feed delivered while focusing on work/learning!
