@@ -1,7 +1,6 @@
 import pymongo
-from decouple import config
 from helper import ITERABLE_FILTERS
-
+import os
 
 class RSSFeed:
     def __init__(self, name: str, url: str) -> None:
@@ -18,13 +17,13 @@ class RSSFeed:
         }
 
 
-print(config("DB_CONNECTION"))
+# print(os.environ.get("DB_CONNECTION"))
 
 
 class UsersDB:
     def __init__(self) -> None:
-        self.db_client = pymongo.MongoClient(config("DB_CONNECTION"))
-        self.db = self.db_client[config("DB_NAME")]
+        self.db_client = pymongo.MongoClient(os.environ.get("DB_CONNECTION"))
+        self.db = self.db_client[os.environ.get("DB_NAME")]
         self.users = self.db["users"]
         if "users" not in self.db.list_collection_names():
             self._init_db()
@@ -121,8 +120,8 @@ class UsersDB:
 
 class JobPostDB:
     def __init__(self) -> None:
-        self.db_client = pymongo.MongoClient(config("DB_CONNECTION"))
-        self.db = self.db_client[config("DB_NAME")]
+        self.db_client = pymongo.MongoClient(os.environ.get("DB_CONNECTION"))
+        self.db = self.db_client[os.environ.get("DB_NAME")]
         self.jobs = self.db["job_posts"]
         if "job_posts" not in self.db.list_collection_names():
             self._init_db()

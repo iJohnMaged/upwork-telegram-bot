@@ -1,20 +1,26 @@
 from typing import List
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from decouple import config
 
 from helper import ALLOWED_SETTINGS, ALLOWED_FILTERS, ITERABLE_FILTERS, HELP_TEXT, REPEAT_PERIOD, INITIAL_TUTORIAL
 from datetime import timedelta
 from storage import UsersDB, RSSFeed
 from rss_parser import RSSParser
 
+import os
+
 import logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
-BOT_TOKEN = config("TOKEN")
-DEV_IDS = config("DEVS", cast=lambda v: [int(
-    s.strip()) for s in v.split(",")], default="0")
+BOT_TOKEN = os.environ.get("TOKEN")
+DEV_IDS = [
+    int(s.strip())
+    for s in os.environ.get("DEVS").split(",")
+]
 
 users_db = UsersDB()
 updater = Updater(token=BOT_TOKEN)
