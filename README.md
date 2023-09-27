@@ -52,10 +52,11 @@ DEVS=COMMAN_SEPARATED_STRING_OF_DEVS_ID (Chat ID between you and the bot)
 
 Run the bot:
 ```shell
+(venv)$ . export.sh
 (venv)$ python bot.py
 ```
 
-And you're good to go!
+Please notice the dot in front of `export.sh`! And you're good to go!
 
 ## Disclaimer ##
 

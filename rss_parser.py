@@ -26,9 +26,9 @@ class JobPost:
     def to_str(self, show_summary):
         job_type = "Hourly" if self.hourly else "Fixed-price"
         if show_summary:
-            return f"Title: {self.title}\nSummary: {self.summary[:500]}\nURL: {self.url}\nBudget: {self.budget}\nType: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
+            return f"<b>{self.title}</b>\n\n{self.summary[:500]} ...\n\n{self.url}\n\nBudget: {self.budget}\nType: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
         else:
-            return f"Title: {self.title}\nURL: {self.url}\nBudget: {self.budget}\nType: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
+            return f"<b>{self.title}</b>\n\n{self.url}\n\nBudget: {self.budget}\nType: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
 
 
 class RSSParser:

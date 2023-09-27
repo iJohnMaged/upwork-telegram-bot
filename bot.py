@@ -42,8 +42,8 @@ def look_for_jobs_cb(context: CallbackContext):
         posts = RSSParser(rss["url"], user_obj).parse_rss()
         posts = posts[::-1]
         for post in posts:
-            message = f"[{rss['name']}]\n\n{post.to_str(show_summary)}"
-            context.bot.send_message(chat_id=chat_id, text=message)
+            message = f"#{rss['name']}\n\n{post.to_str(show_summary)}"
+            context.bot.send_message(chat_id=chat_id, text=message, parse_mode=telegram.ParseMode.HTML)
 
 
 def add_job_to_queue(user_id, interval, first):
