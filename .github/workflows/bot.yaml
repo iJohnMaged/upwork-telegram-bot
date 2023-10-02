@@ -4,7 +4,7 @@ on:
     branches:
       - runner
   schedule:
-    - cron: "17 6-13/6 * * *" # at minute 17 past every 6am and 12pm
+    - cron: "17 0-10/6 * * *" # every 7:17am and 1:17pm UTC+7
   workflow_dispatch:
 
 jobs:

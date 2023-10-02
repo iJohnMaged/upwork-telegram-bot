@@ -26,7 +26,7 @@ class JobPost:
     def to_str(self, show_summary):
         job_type = "Hourly" if self.hourly else "Fixed-price"
         if show_summary:
-            return f"<b>{self.title}</b>\n\n{self.summary[:500]} ...\n\n{self.url}\n\nBudget: {self.budget}\nType: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
+            return f"<b>{self.title}</b>\n\n{self.summary}\n\n{self.url}\n\nBudget: {self.budget}\nType: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
         else:
             return f"<b>{self.title}</b>\n\n{self.url}\n\nBudget: {self.budget}\nType: {job_type}\nPublished: {str(self.published)}\nCountry: {self.country}"
 
@@ -69,8 +69,19 @@ class RSSParser:
             return 'N/A'
 
     def _clean_summary(self, summary):
-        pattern = re.compile(r'<.*?>')
-        return pattern.sub('', summary)
+        # pattern = re.compile(r'<.*?>')
+        pattern = re.compile(r'<br\s*\/?>')
+        summary = pattern.sub('\n', summary)
+        skill_prefix = "<b>Skills</b>:"
+        if re.findall(skill_prefix):
+            summary = summary.split(skill_prefix)
+            summary[1] = " ".join(
+                [f"#{s.strip().replace(' ', '')}" for s in summary[1].split(",")]
+            )
+            summary[1] = f"{skill_prefix} {summary[1]}"
+            summary = "".join(summary)
+        # return pattern.sub('\n', summary)
+        return re.compile(r'\n\n').sub('\n', summary)
 
     def _parse_published(self, published_str):
         # Format Example: Sat, 24 Oct 2020 03:06:03 +0000
@@ -108,6 +119,7 @@ class RSSParser:
                 published,
                 entry.get("title"),
                 self._clean_summary(entry.get("summary")),
+                #  entry.get("summary"),
                 budget_numeric,
                 country,
                 hourly
