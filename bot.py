@@ -12,7 +12,7 @@ import os
 import logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO,
+    level=logging.ERROR if os.environ.get("ENV_ACTION") else logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 

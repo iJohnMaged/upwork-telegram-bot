@@ -1,4 +1,4 @@
-name: bot runner
+name: bot
 on:
   push:
     branches:
@@ -8,13 +8,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  bot-runner:
+  runner:
     runs-on: ubuntu-latest
     env:
       TOKEN: ${{ secrets.TOKEN }}
       DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
       DB_NAME: ${{ secrets.DB_NAME }}
       DEVS: ${{ secrets.DEVS }}
+      ENV_ACTION: ${{ secrets.ENV_ACTION }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3

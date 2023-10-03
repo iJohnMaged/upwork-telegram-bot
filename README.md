@@ -11,10 +11,6 @@ The idea is adding your RSS feeds to the bot on telegram, and in one place you'l
 
 ![Bot Output](images/bot_example.jpg)
 
-## How to get started using the bot on Telegram? ##
-
-Saerch for the bot on Telegram `@UpworkDeliveryBot` and follow the starting tutorial.
-
 ## Where do I get my RSS urls? ##
 On your main feed:
 
@@ -48,6 +44,7 @@ TOKEN=YOUR_TELEGRAM_BOT_TOKEN
 DB_CONNECTION=MONGO_DB_CONNECTION_STRING
 DB_NAME=MONGO_DB_NAME
 DEVS=COMMAN_SEPARATED_STRING_OF_DEVS_ID (Chat ID between you and the bot)
+ENV_ACTION=1 (1 or 0 as boolean)
 ```
 
 Run the bot:
