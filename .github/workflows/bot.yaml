@@ -16,6 +16,11 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       DEVS: ${{ secrets.DEVS }}
       ENV_ACTION: ${{ secrets.ENV_ACTION }}
+      AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+      AIRTABLE_APP: ${{ secrets.AIRTABLE_APP }}
+      AIRTABLE_TABLE_PROJECT: ${{ secrets.AIRTABLE_TABLE_PROJECT }}
+      AIRTABLE_TABLE_COUNTRY: ${{ secrets.AIRTABLE_TABLE_COUNTRY }}
+      AIRTABLE_TABLE_KEYWORD: ${{ secrets.AIRTABLE_TABLE_KEYWORD }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3

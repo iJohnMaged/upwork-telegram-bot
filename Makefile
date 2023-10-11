@@ -4,9 +4,9 @@ SHELL = /bin/bash
 all: run
 
 run: bot.py
-	timeout 21500 python bot.py; \
+	timeout 20880 python bot.py; \
 	status=$${?}; \
-	if (( $${status} == 124 )); \
+	if [ $${status} == 124 ]; \
 	then exit 0; \
 	else exit $${status}; \
 	fi;

@@ -4,7 +4,7 @@ import html
 import pytz
 import timeago
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Any, Dict, List
 
@@ -18,12 +18,18 @@ class JobPost:
     url: str
     budget: str
     published: str
+    published_date: str  # iso
     title: str
     summary: str
     skills: List[str]
     budget_numeric: int
+    budget_min: int
+    budget_max: int
     country: str
     hourly: bool
+
+    def to_dict(self):
+        return asdict(self)
 
     def to_str(self, show_summary):
         job_type = "Hourly" if self.hourly else "Fixed-price"
@@ -65,16 +71,20 @@ class RSSParser:
             budget = re.search(r"<b>Hourly Range</b>:([^\n]+)", summary).group(1)
             budget = budget.strip()
             budget_no_dollar = budget.replace("$", "")
-            return budget, float(budget_no_dollar.split("-")[0]), True
+            budget_num = [float(b) for b in budget_no_dollar.split("-")]
+            budget_min = budget_num[0] if len(budget_num) > 1 else None
+            budget_max = budget_num[1] if len(budget_num) > 1 else budget_num[0]
+            return budget, budget_min, budget_max, True
         try:
             budget = "$" + re.search(r"<b>Budget</b>: \$(\d[0-9,.]+)", summary).group(1)
             budget = re.sub("<[^<]+?>", "", budget)
         except AttributeError:
             budget = "N/A"
         try:
-            return budget, int(budget[:-1]), False
+            # return budget, int(budget[:-1]), int(budget[:-1]), False
+            return budget, None, int(budget[1:]), False
         except:
-            return budget, None, (budget == "N/A")
+            return budget, None, None, (budget == "N/A")
 
     def _parse_country(self, summary):
         try:
@@ -117,7 +127,7 @@ class RSSParser:
             .replace(tzinfo=pytz.utc)
             .astimezone(pytz.timezone(user_timezone))
         )
-        return timeago.format(published, timenow)
+        return timeago.format(published, timenow), published.isoformat()
 
     def _filter_job(self, job: JobPost):
         excluded_countries = self.user_filters.get("exclude_countries", None)
@@ -135,17 +145,22 @@ class RSSParser:
         for entry in entries:
             if jobs_db.job_exits(entry["id"], self.user_id):
                 continue
-            budget, budget_numeric, hourly = self._parse_budget(entry["summary"])
+            budget, budget_min, budget_max, hourly = self._parse_budget(
+                entry["summary"]
+            )
             country = self._parse_country(entry["summary"])
-            published = self._parse_published(entry["published"])
+            published, published_date = self._parse_published(entry["published"])
             job_post = JobPost(
                 entry.get("id", "#"),
                 budget,
                 published,
+                published_date,
                 entry.get("title"),
                 self._parse_summary(entry.get("summary")),
                 self._parse_skills(entry.get("summary")),
-                budget_numeric,
+                budget_min,  # budget_numeric
+                budget_min,
+                budget_max,
                 country,
                 hourly,
             )

@@ -17,9 +17,6 @@ class RSSFeed:
         }
 
 
-# print(os.environ.get("DB_CONNECTION"))
-
-
 class UsersDB:
     def __init__(self) -> None:
         self.db_client = pymongo.MongoClient(os.environ.get("DB_CONNECTION"))
